@@ -1,1 +1,1 @@
-# angular2-symfony3
+# Angular 2 / Symfony 3 Quickstart
