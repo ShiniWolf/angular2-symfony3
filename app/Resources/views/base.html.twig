@@ -6,10 +6,11 @@
 
         <title>{% block title %}Welcome!{% endblock %}</title>
 
-        <link rel="stylesheet" href="http://localhost:8080/static/app.css">
         {% block stylesheets %}
             {% if app.environment != 'dev' %}
                 <link rel="stylesheet" href="/dist/app.css" type="text/css">
+            {% else %}
+                <link rel="stylesheet" href="http://localhost:8080/static/app.css">
             {% endif %}
         {% endblock %}
 
