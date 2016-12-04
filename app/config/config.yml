@@ -10,7 +10,7 @@ parameters:
 
 framework:
     #esi:             ~
-    #translator:      { fallbacks: ["%locale%"] }
+    translator:      { fallbacks: ["%locale%"] }
     secret:          "%secret%"
     router:
         resource: "%kernel.root_dir%/config/routing.yml"
@@ -69,3 +69,21 @@ swiftmailer:
 
 # Nelmio Api Doc
 nelmio_api_doc: ~
+
+# Fos Rest Bundle
+fos_rest:
+    view:
+        failed_validation: HTTP_BAD_REQUEST
+        empty_content: HTTP_NO_CONTENT
+        force_redirects:
+            html: true
+            json: false
+    access_denied_listener:
+        json: true
+    body_listener:
+        decoders:
+            json: fos_rest.decoder.json
+    format_listener:
+        rules:
+          - { path : '^/api/', priorities: [json], fallback_format: json}
+          - { path: '^/', stop: true }

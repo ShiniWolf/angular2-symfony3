@@ -1,0 +1,14 @@
+<div *ngIf="user">
+    <h2>{{ user.name }} details !</h2>
+
+    <div>
+        <label>Id: </label>
+        <span>{{ user.id }}</span>
+    </div>
+
+    <div>
+        <label>Name: </label>
+        <input [(ngModel)]="user.name" type="text">
+    </div>
+    <button (click)="goBack()">Back</button>
+</div>

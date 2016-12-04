@@ -2,6 +2,11 @@
 #    resource: "@AppBundle/Controller/"
 #    type:     annotation
 
+users:
+    type:     rest
+    resource: AppBundle\Controller\UsersController
+    prefix: /api
+
 fallback:
     path: /{url}
     defaults: { _controller: AppBundle:Default:index, url: null }

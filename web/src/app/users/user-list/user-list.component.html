@@ -1,0 +1,9 @@
+<div *ngIf="users">
+    <h2>User list !</h2>
+
+    <ul>
+        <li *ngFor="let user of users" (click)="onSelect(user)">
+            <span class="badge">{{ user.id }}</span> {{ user.name }}
+        </li>
+    </ul>
+</div>

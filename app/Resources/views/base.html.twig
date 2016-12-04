@@ -1,34 +1,40 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    {% if app.environment != 'dev' %}
+        <base href="/">
+    {% else %}
+        <base href="/app_dev.php/">
+    {% endif %}
 
-        <title>{% block title %}Welcome!{% endblock %}</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {% block stylesheets %}
-            {% if app.environment != 'dev' %}
-                <link rel="stylesheet" href="/dist/app.css" type="text/css">
-            {% else %}
-                <link rel="stylesheet" href="http://localhost:8080/static/app.css">
-            {% endif %}
-        {% endblock %}
+    <title>{% block title %}Welcome!{% endblock %}</title>
 
-        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
-    </head>
-    <body>
-        {% block body %}{% endblock %}
+    {% block stylesheets %}
+        {% if app.environment != 'dev' %}
+            <link rel="stylesheet" href="/dist/app.css" type="text/css">
+        {% else %}
+            <link rel="stylesheet" href="http://localhost:8080/static/app.css">
+        {% endif %}
+    {% endblock %}
 
-        {% block javascripts %}
-            {% if app.environment == 'dev' %}
-                <script src="http://127.0.0.1:8080/static/polyfills.js"></script>
-                <script src="http://127.0.0.1:8080/static/vendor.js"></script>
-                <script src="http://127.0.0.1:8080/static/app.js"></script>
-            {% else %}
-                <script src="/dist/polyfills.js"></script>
-                <script src="/dist/vendor.js"></script>
-                <script src="/dist/app.js"></script>
-            {% endif %}
-        {% endblock %}
-    </body>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}"/>
+</head>
+<body>
+{% block body %}{% endblock %}
+
+{% block javascripts %}
+    {% if app.environment == 'dev' %}
+        <script src="http://127.0.0.1:8080/static/polyfills.js"></script>
+        <script src="http://127.0.0.1:8080/static/vendor.js"></script>
+        <script src="http://127.0.0.1:8080/static/app.js"></script>
+    {% else %}
+        <script src="/dist/polyfills.js"></script>
+        <script src="/dist/vendor.js"></script>
+        <script src="/dist/app.js"></script>
+    {% endif %}
+{% endblock %}
+</body>
 </html>
