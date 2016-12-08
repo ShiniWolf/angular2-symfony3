@@ -1,7 +1,5 @@
 # Angular 2 / Symfony 3 Quickstart
 
-- Clone the repository : https://github.com/ShiniWolf/angular2-symfony3.git
-
 ## Symfony 3
 
 ### Bundles
@@ -12,7 +10,8 @@
 
 ### Commands
 
-- Run `composer install` in root directory and complete parameters.yml
+- Create project with composer : `composer create-project shiniwolf/angular2-symfony3 directory_name`
+- Complete parameters.yml
 - Create your virtual host : http://angular2-symfony3.dev/
 
 ## Angular 2
