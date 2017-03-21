@@ -1,0 +1,204 @@
+<?php
+
+namespace {{ bundle|capitalize }}\Controller\Api;
+
+use FOS\RestBundle\Controller\FOSRestController;
+
+use FOS\RestBundle\Controller\Annotations as Rest;
+
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfony\Component\Form\Form;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+use AppBundle\Entity\{{ entity|capitalize }};
+use AppBundle\Form\{{ entity|capitalize }}Type;
+
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+
+/**
+ * Class {{ entity|capitalize }}Controller
+ *
+ * @package AppBundle\Controller
+ */
+class {{ entity|capitalize }}Controller extends FOSRestController
+{
+    /**
+     * Tous les {{ entity|lower }}
+     *
+     * @Rest\Get("/{{ entities|lower }}")
+     */
+    public function all{{ entity|capitalize }}Action()
+    {
+        $em = $this->getDoctrine()->getManager();
+        $all{{ entities|capitalize }} = $em->getRepository('{{ bundle|capitalize }}:{{ entity|capitalize }}')->findAll();
+
+        $view = $this->view($allAgencies);
+        $view->getContext()->setGroups(['DataView']);
+
+        return $this->handleView($view);
+    }
+
+    /**
+     * Données pour le formulaire de création et d'édition d'une agence
+     *
+     * @param Int $id
+     *
+     * @return Response
+     *
+     * @Rest\Get("/agency_form/{id}", requirements={"id" = "\d+"}, defaults={"id" = 0})
+     */
+    public function formAgencyAction( Int $id )
+    {
+        $dataForm = [];
+
+        //Si id correspond à un stock on ajoute les infos
+        if($id != 0)
+        {
+            $agency = $this->get('wa.repo.agency')->find($id);
+            if( !$agency ) {
+                throw  new BadRequestHttpException("Le agency n'existe pas");
+            }
+            $dataForm['agency'] = $agency;
+        }
+
+        $view = $this->view($dataForm);
+
+        return $this->handleView($view);
+    }
+
+    /**
+     * Ajoute une agence
+     *
+     * @param Request $request
+     *
+     * @Rest\Post("/agencies")
+     */
+    public function createAgencyAction( Request $request )
+    {
+
+        return $this->saveFormUnit($request);
+
+    }
+
+    /**
+     * Modifie une agence
+     *
+     * @param Request $request
+     * @param Int     $id
+     *
+     * @Rest\Put("/agencies/{id}", requirements={"id" = "\d+"})
+     */
+    public function editAgencyAction( Request $request, Int $id )
+    {
+        if(empty($request->request->all())){
+            return $this->handleView($this->view('Aucune modification', 200));
+        }
+        return $this->saveFormUnit($request, $id);
+    }
+
+
+    /**
+     * Suppression logique d'une agence
+     *
+     * @param Int $id
+     *
+     * @return Response
+     *
+     * @Rest\Delete("/agencies/{id}", requirements={"id" = "\d+"})
+     */
+    public function deleteAgencyAction(Int $id)
+    {
+
+        //On cherche id dans les agences
+        /**@var Agency $agency**/
+        $agency = $this->get('wa.repo.agency')->find($id);
+
+        //Vérifie l'existance de l'objet
+        if (!$agency) {
+            throw new BadRequestHttpException("Le agence n'existe pas");
+        }
+
+        //Vérifie si l'agence est attaché a des matériel
+        $cheackUnit = $this->get('wa.repo.unit')->findByAgency($agency);
+        $cheackStock = $this->get('wa.repo.stock')->findByAgency($agency);
+        if(! empty($cheackUnit) || ! empty($cheackStock)){
+            throw new \Exception('Cette agence est rattaché a des matériels.');
+        }
+
+        $agency->setDelete(true);
+
+        $this->getDoctrine()->getManager()->flush();
+
+        return new Response('', Response::HTTP_NO_CONTENT);
+
+    }
+
+    /**
+     * Regroupe les action de creation et d'édition
+     *
+     * @param Request $request
+     * @param null $id
+     *
+     * @return Response
+     */
+    private function saveFormUnit(Request $request, $id = null)
+    {
+        $dataSubmit = [];
+        $em = $this->getDoctrine()->getManager();
+
+        //Cas edition
+        if ($id != null) {
+            $agency = $this->get('wa.repo.agency')->find($id);
+            if (!$agency) {
+                throw new BadRequestHttpException("L'agence n'existe pas");
+            }
+
+            $method = Request::METHOD_PUT;
+            $responceOk = Response::HTTP_OK;
+        }
+
+        //Cas ajout
+        else {
+            $agency = new Agency();
+
+            $method = Request::METHOD_POST;
+            $responceOk = Response::HTTP_CREATED;
+        }
+
+        //Sépare les deux formulaire unit et les affectations
+        /**@var Form $formUnit * */
+        $formUnit = $this->get('form.factory')->createNamed(
+            '',
+            AgencyType::class,
+            $agency,
+            [
+                'method' => $method,
+                'csrf_protection' => false
+            ]
+        );
+
+        if ($request->isMethod($method)) {
+
+            $dataSubmit['title'] = $request->get('title');
+
+            $formUnit->submit($dataSubmit, false);
+            if ($formUnit->isValid()) {
+                //On défini la disponibilité du matériel unitaire
+
+                if ($id == null) {
+                    $em->persist($agency);
+                }
+
+                $em->flush();
+
+                return $this->handleView($this->view($agency->getId(),$responceOk));
+            }
+        }
+
+        return $this->handleView($this->view(
+            $formUnit,
+            Response::HTTP_BAD_REQUEST
+        ));
+    }
+}
