@@ -7,7 +7,7 @@ users:
     resource: AppBundle\Controller\UsersController
     prefix: /api
 
-#else this is route for Angular
+#else this is route for Angular 2
 fallback:
     path: /{url}
     defaults: { _controller: AppBundle:Default:index, url: null }
